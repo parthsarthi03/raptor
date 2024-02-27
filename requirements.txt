@@ -1,0 +1,10 @@
+faiss-cpu
+numpy==1.26.3
+openai==1.3.3
+scikit-learn
+sentence-transformers==2.2.2
+tenacity==8.2.3
+tiktoken==0.5.1
+torch
+transformers==4.38.1
+umap-learn==0.5.5

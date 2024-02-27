@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Vim
+*.swp
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# mac
+.DS_Store
+
+# Other
+.vscode
+*.tsv
+*.pt
+gpt*.txt
+*.env
+local/
+local_*
+build/
+*.egg-info/
+!/data/*.json
+/dist/
+checklist.md
+finetuning_ckpts/
+* copy*
+.idea
+assertion.log
+*.log
+*.db
