@@ -68,7 +68,7 @@ print("Answer: ", answer)
 Save the constructed tree to a specified path:
 
 ```python
-SAVE_PATH = "demo/cinderalla"
+SAVE_PATH = "demo/cinderella"
 RA.save(SAVE_PATH)
 ```
 
