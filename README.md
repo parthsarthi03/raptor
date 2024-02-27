@@ -20,8 +20,8 @@ For detailed methodologies and implementations, refer to the original paper:
 Before using RAPTOR, ensure Python 3.8+ is installed. Clone the RAPTOR repository and install necessary dependencies:
 
 ```bash
-git clone https://github.com/parthsarthi03/RAPTOR.git
-cd RAPTOR
+git clone https://github.com/parthsarthi03/raptor.git
+cd raptor
 pip install -r requirements.txt
 ```
 
