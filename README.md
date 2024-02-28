@@ -1,7 +1,18 @@
-<p align="center">
+<!-- <p align="center">
   <img align="center" src="raptor.jpg" width="1000px" />
 </p>
-<p align="left">
+<p align="left"> -->
+
+<!-- <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="raptor.jpg" width="1000px">
+  <source media="(prefers-color-scheme: light)" srcset="raptor_dark.png" width="1000px">
+  
+</picture> -->
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="raptor_dark.png">
+  <img alt="Shows an illustrated sun in light color mode and a moon with stars in dark color mode." src="raptor.jpg">
+</picture>
 
 ## RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval
 
