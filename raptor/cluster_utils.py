@@ -175,7 +175,7 @@ class RAPTOR_Clustering(ClusteringAlgorithm):
                         f"reclustering cluster with {len(cluster_nodes)} nodes"
                     )
                 node_clusters.extend(
-                    RAPTOR_Clustering(
+                    RAPTOR_Clustering.perform_clustering(
                         cluster_nodes, embedding_model_name, max_length_in_cluster
                     )
                 )
