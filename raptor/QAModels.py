@@ -3,7 +3,7 @@ import os
 
 from openai import OpenAI
 
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
 import getpass
 from abc import ABC, abstractmethod
 
@@ -27,6 +27,7 @@ class GPT3QAModel(BaseQAModel):
             model (str, optional): The GPT-3 model version to use for generating summaries. Defaults to "text-davinci-003".
         """
         self.model = model
+        self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
     @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
     def answer_question(self, context, question, max_tokens=150, stop_sequence=None):
@@ -42,7 +43,7 @@ class GPT3QAModel(BaseQAModel):
             str: The generated summary.
         """
         try:
-            response = client.completions.create(
+            response = self.client.completions.create(
                 prompt=f"using the folloing information {context}. Answer the following question in less than 5-7 words, if possible: {question}",
                 temperature=0,
                 max_tokens=max_tokens,
@@ -68,6 +69,7 @@ class GPT3TurboQAModel(BaseQAModel):
             model (str, optional): The GPT-3 model version to use for generating summaries. Defaults to "text-davinci-003".
         """
         self.model = model
+        self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
     @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
     def _attempt_answer_question(
@@ -84,7 +86,7 @@ class GPT3TurboQAModel(BaseQAModel):
         Returns:
             str: The generated summary.
         """
-        response = client.chat.completions.create(
+        response = self.client.chat.completions.create(
             model=self.model,
             messages=[
                 {"role": "system", "content": "You are Question Answering Portal"},
@@ -119,6 +121,7 @@ class GPT4QAModel(BaseQAModel):
             model (str, optional): The GPT-3 model version to use for generating summaries. Defaults to "text-davinci-003".
         """
         self.model = model
+        self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
     @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
     def _attempt_answer_question(
@@ -135,7 +138,7 @@ class GPT4QAModel(BaseQAModel):
         Returns:
             str: The generated summary.
         """
-        response = client.chat.completions.create(
+        response = self.client.chat.completions.create(
             model=self.model,
             messages=[
                 {"role": "system", "content": "You are Question Answering Portal"},
