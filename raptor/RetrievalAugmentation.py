@@ -156,13 +156,15 @@ class RetrievalAugmentation:
     Enables adding documents to the tree, retrieving information, and answering questions.
     """
 
-    def __init__(self, config=RetrievalAugmentationConfig(), tree=None):
+    def __init__(self, config=None, tree=None):
         """
         Initializes a RetrievalAugmentation instance with the specified configuration.
         Args:
             config (RetrievalAugmentationConfig): The configuration for the RetrievalAugmentation instance.
             tree: The tree instance or the path to a pickled tree file.
         """
+        if config is None:
+            config = RetrievalAugmentationConfig()
         if not isinstance(config, RetrievalAugmentationConfig):
             raise ValueError(
                 "config must be an instance of RetrievalAugmentationConfig"
