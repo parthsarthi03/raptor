@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import Dict, List, Set
 
 import numpy as np
@@ -19,42 +20,74 @@ def reverse_mapping(layer_to_nodes: Dict[int, List[Node]]) -> Dict[Node, int]:
 
 
 def split_text(
-    text: str, tokenizer: tiktoken.get_encoding("cl100k_base"), max_tokens: int
-) -> List[str]:
+    text: str, tokenizer: tiktoken.get_encoding("cl100k_base"), max_tokens: int, overlap: int = 0
+):
     """
     Splits the input text into smaller chunks based on the tokenizer and maximum allowed tokens.
-
+    
     Args:
         text (str): The text to be split.
         tokenizer (CustomTokenizer): The tokenizer to be used for splitting the text.
         max_tokens (int): The maximum allowed tokens.
-
+        overlap (int, optional): The number of overlapping tokens between chunks. Defaults to 0.
+    
     Returns:
         List[str]: A list of text chunks.
     """
-    logging.info("Splitting Text")
-    sentences = text.split(". ")
+    # Split the text into sentences using multiple delimiters
+    delimiters = [".", "!", "?", "\n"]
+    regex_pattern = "|".join(map(re.escape, delimiters))
+    sentences = re.split(regex_pattern, text)
+    
+    # Calculate the number of tokens for each sentence
     n_tokens = [len(tokenizer.encode(" " + sentence)) for sentence in sentences]
-
-    chunks: List[str] = []
-    tokens_so_far = 0
-    chunk = []
-
-    for sentence, token in zip(sentences, n_tokens):
-        if tokens_so_far + token > max_tokens:
-            chunks.append(". ".join(chunk) + ".")
-            chunk = []
-            tokens_so_far = 0
-
-        if token > max_tokens:
+    
+    chunks = []
+    current_chunk = []
+    current_length = 0
+    
+    for sentence, token_count in zip(sentences, n_tokens):
+        # If the sentence is empty or consists only of whitespace, skip it
+        if not sentence.strip():
             continue
-
-        chunk.append(sentence)
-        tokens_so_far += token + 1
-
-    if chunk:
-        chunks.append(". ".join(chunk) + ".")
-
+        
+        # If the sentence is too long, split it into smaller parts
+        if token_count > max_tokens:
+            sub_sentences = re.split(r"[,;:]", sentence)
+            sub_token_counts = [len(tokenizer.encode(" " + sub_sentence)) for sub_sentence in sub_sentences]
+            
+            sub_chunk = []
+            sub_length = 0
+            
+            for sub_sentence, sub_token_count in zip(sub_sentences, sub_token_counts):
+                if sub_length + sub_token_count > max_tokens:
+                    chunks.append(" ".join(sub_chunk))
+                    sub_chunk = sub_chunk[-overlap:] if overlap > 0 else []
+                    sub_length = sum(sub_token_counts[max(0, len(sub_chunk) - overlap):len(sub_chunk)])
+                
+                sub_chunk.append(sub_sentence)
+                sub_length += sub_token_count
+            
+            if sub_chunk:
+                chunks.append(" ".join(sub_chunk))
+        
+        # If adding the sentence to the current chunk exceeds the max tokens, start a new chunk
+        elif current_length + token_count > max_tokens:
+            chunks.append(" ".join(current_chunk))
+            current_chunk = current_chunk[-overlap:] if overlap > 0 else []
+            current_length = sum(n_tokens[max(0, len(current_chunk) - overlap):len(current_chunk)])
+            current_chunk.append(sentence)
+            current_length += token_count
+        
+        # Otherwise, add the sentence to the current chunk
+        else:
+            current_chunk.append(sentence)
+            current_length += token_count
+    
+    # Add the last chunk if it's not empty
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+    
     return chunks
 
 
