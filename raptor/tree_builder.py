@@ -25,69 +25,81 @@ class TreeBuilderConfig:
     def __init__(
         self,
         tokenizer=None,
-        max_tokens=100,
-        num_layers=5,
-        threshold=0.5,
-        top_k=5,
-        selection_mode="top_k",
-        summarization_length=100,
+        max_tokens=None,
+        num_layers=None,
+        threshold=None,
+        top_k=None,
+        selection_mode=None,
+        summarization_length=None,
         summarization_model=None,
         embedding_models=None,
-        cluster_embedding_model="OpenAI",
+        cluster_embedding_model=None,
     ):
-        if selection_mode not in ["top_k", "threshold"]:
-            raise ValueError("selection_mode must be either 'top_k' or 'threshold'")
+        if tokenizer is None:
+            tokenizer = tiktoken.get_encoding("cl100k_base")
+        self.tokenizer = tokenizer
 
-        if not isinstance(top_k, int) or top_k < 1:
-            raise ValueError("top_k must be an integer and at least 1")
-
-        if not isinstance(threshold, (int, float)) or not (0 <= threshold <= 1):
-            raise ValueError("threshold must be a number between 0 and 1")
-
-        if not isinstance(num_layers, int) or num_layers < 1:
-            raise ValueError("num_layers must be an integer and at least 1")
-
+        if max_tokens is None:
+            max_tokens = 100
         if not isinstance(max_tokens, int) or max_tokens < 1:
             raise ValueError("max_tokens must be an integer and at least 1")
+        self.max_tokens = max_tokens
 
-        if summarization_model is not None and not isinstance(
-            summarization_model, BaseSummarizationModel
-        ):
+        if num_layers is None:
+            num_layers = 5
+        if not isinstance(num_layers, int) or num_layers < 1:
+            raise ValueError("num_layers must be an integer and at least 1")
+        self.num_layers = num_layers
+
+        if threshold is None:
+            threshold = 0.5
+        if not isinstance(threshold, (int, float)) or not (0 <= threshold <= 1):
+            raise ValueError("threshold must be a number between 0 and 1")
+        self.threshold = threshold
+
+        if top_k is None:
+            top_k = 5
+        if not isinstance(top_k, int) or top_k < 1:
+            raise ValueError("top_k must be an integer and at least 1")
+        self.top_k = top_k
+
+        if selection_mode is None:
+            selection_mode = "top_k"
+        if selection_mode not in ["top_k", "threshold"]:
+            raise ValueError("selection_mode must be either 'top_k' or 'threshold'")
+        self.selection_mode = selection_mode
+
+        if summarization_length is None:
+            summarization_length = 100
+        self.summarization_length = summarization_length
+
+        if summarization_model is None:
+            summarization_model = GPT3TurboSummarizationModel()
+        if not isinstance(summarization_model, BaseSummarizationModel):
             raise ValueError(
-                "summarization_model must be an instance of BaseSummarizationModel or None"
+                "summarization_model must be an instance of BaseSummarizationModel"
             )
+        self.summarization_model = summarization_model
 
-        if not isinstance(embedding_models, (type(None), dict)):
+        if embedding_models is None:
+            embedding_models = {"OpenAI": OpenAIEmbeddingModel()}
+        if not isinstance(embedding_models, dict):
             raise ValueError(
-                "embedding_models must be a dictionary of model_name: instance pairs or None"
+                "embedding_models must be a dictionary of model_name: instance pairs"
             )
+        for model in embedding_models.values():
+            if not isinstance(model, BaseEmbeddingModel):
+                raise ValueError(
+                    "All embedding models must be an instance of BaseEmbeddingModel"
+                )
+        self.embedding_models = embedding_models
 
-        if isinstance(embedding_models, dict):
-            for model in embedding_models.values():
-                if not isinstance(model, BaseEmbeddingModel):
-                    raise ValueError(
-                        "All embedding models must be an instance of BaseEmbeddingModel"
-                    )
-
-        if (
-            embedding_models is not None
-            and cluster_embedding_model not in embedding_models
-        ):
+        if cluster_embedding_model is None:
+            cluster_embedding_model = "OpenAI"
+        if cluster_embedding_model not in self.embedding_models:
             raise ValueError(
                 "cluster_embedding_model must be a key in the embedding_models dictionary"
             )
-
-        self.tokenizer = (
-            tokenizer if tokenizer else tiktoken.get_encoding("cl100k_base")
-        )
-        self.max_tokens = max_tokens
-        self.num_layers = num_layers
-        self.threshold = threshold
-        self.top_k = top_k
-        self.selection_mode = selection_mode
-        self.summarization_length = summarization_length
-        self.summarization_model = summarization_model or GPT3TurboSummarizationModel()
-        self.embedding_models = embedding_models or {"OpenAI": OpenAIEmbeddingModel()}
         self.cluster_embedding_model = cluster_embedding_model
 
     def log_config(self):

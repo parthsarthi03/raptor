@@ -224,8 +224,9 @@ class RetrievalAugmentation:
         question,
         start_layer: int = None,
         num_layers: int = None,
+        top_k: int = 10,
         max_tokens: int = 3500,
-        collapse_tree: bool = False,
+        collapse_tree: bool = True,
         return_layer_information: bool = True,
     ):
         """
@@ -253,6 +254,7 @@ class RetrievalAugmentation:
             question,
             start_layer,
             num_layers,
+            top_k,
             max_tokens,
             collapse_tree,
             return_layer_information,
@@ -261,10 +263,11 @@ class RetrievalAugmentation:
     def answer_question(
         self,
         question,
+        top_k: int = 10,
         start_layer: int = None,
         num_layers: int = None,
         max_tokens: int = 3500,
-        collapse_tree: bool = False,
+        collapse_tree: bool = True,
         return_layer_information: bool = False,
     ):
         """
@@ -285,7 +288,7 @@ class RetrievalAugmentation:
         """
         # if return_layer_information:
         context, layer_information = self.retrieve(
-            question, start_layer, num_layers, max_tokens, collapse_tree, True
+            question, start_layer, num_layers, top_k, max_tokens, collapse_tree, True
         )
 
         answer = self.qa_model.answer_question(context, question)

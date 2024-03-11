@@ -15,6 +15,7 @@ from .utils import (distances_from_embeddings, get_children, get_embeddings,
 
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 
+
 class TreeRetrieverConfig:
     def __init__(
         self,
@@ -154,7 +155,7 @@ class TreeRetriever(BaseRetriever):
         """
         return self.embedding_model.create_embedding(text)
 
-    def retrieve_information_collapse_tree(self, query: str, max_tokens: int) -> str:
+    def retrieve_information_collapse_tree(self, query: str, top_k: int, max_tokens: int) -> str:
         """
         Retrieves the most relevant information from the tree based on the query.
 
@@ -179,7 +180,8 @@ class TreeRetriever(BaseRetriever):
         indices = indices_of_nearest_neighbors_from_distances(distances)
 
         total_tokens = 0
-        for idx in indices:
+        for idx in indices[:top_k]:
+
             node = node_list[idx]
             node_tokens = len(self.tokenizer.encode(node.text))
 
@@ -252,8 +254,9 @@ class TreeRetriever(BaseRetriever):
         query: str,
         start_layer: int = None,
         num_layers: int = None,
+        top_k: int = 10, 
         max_tokens: int = 3500,
-        collapse_tree: bool = False,
+        collapse_tree: bool = True,
         return_layer_information: bool = False,
     ) -> str:
         """
@@ -299,7 +302,7 @@ class TreeRetriever(BaseRetriever):
         if collapse_tree:
             logging.info(f"Using collapsed_tree")
             selected_nodes, context = self.retrieve_information_collapse_tree(
-                query, max_tokens
+                query, top_k, max_tokens
             )
         else:
             layer_nodes = self.tree.layer_to_nodes[start_layer]
