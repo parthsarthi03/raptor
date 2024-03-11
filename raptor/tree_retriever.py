@@ -15,26 +15,36 @@ from .utils import (distances_from_embeddings, get_children, get_embeddings,
 
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 
-
 class TreeRetrieverConfig:
     def __init__(
         self,
-        tokenizer=tiktoken.get_encoding("cl100k_base"),
-        threshold=0.5,
-        top_k=5,
-        selection_mode="top_k",
-        context_embedding_model="OpenAI",
+        tokenizer=None,
+        threshold=None,
+        top_k=None,
+        selection_mode=None,
+        context_embedding_model=None,
         embedding_model=None,
         num_layers=None,
         start_layer=None,
     ):
+        if tokenizer is None:
+            tokenizer = tiktoken.get_encoding("cl100k_base")
+        self.tokenizer = tokenizer
 
+        if threshold is None:
+            threshold = 0.5
         if not isinstance(threshold, float) or not (0 <= threshold <= 1):
             raise ValueError("threshold must be a float between 0 and 1")
+        self.threshold = threshold
 
+        if top_k is None:
+            top_k = 5
         if not isinstance(top_k, int) or top_k < 1:
             raise ValueError("top_k must be an integer and at least 1")
+        self.top_k = top_k
 
+        if selection_mode is None:
+            selection_mode = "top_k"
         if not isinstance(selection_mode, str) or selection_mode not in [
             "top_k",
             "threshold",
@@ -42,32 +52,30 @@ class TreeRetrieverConfig:
             raise ValueError(
                 "selection_mode must be a string and either 'top_k' or 'threshold'"
             )
+        self.selection_mode = selection_mode
 
+        if context_embedding_model is None:
+            context_embedding_model = "OpenAI"
         if not isinstance(context_embedding_model, str):
             raise ValueError("context_embedding_model must be a string")
+        self.context_embedding_model = context_embedding_model
 
-        if embedding_model is not None and not isinstance(
-            embedding_model, BaseEmbeddingModel
-        ):
+        if embedding_model is None:
+            embedding_model = OpenAIEmbeddingModel()
+        if not isinstance(embedding_model, BaseEmbeddingModel):
             raise ValueError(
-                "embedding_model must be an instance of BaseEmbeddingModel or None"
+                "embedding_model must be an instance of BaseEmbeddingModel"
             )
+        self.embedding_model = embedding_model
 
         if num_layers is not None:
             if not isinstance(num_layers, int) or num_layers < 0:
                 raise ValueError("num_layers must be an integer and at least 0")
+        self.num_layers = num_layers
 
         if start_layer is not None:
             if not isinstance(start_layer, int) or start_layer < 0:
                 raise ValueError("start_layer must be an integer and at least 0")
-
-        self.tokenizer = tokenizer
-        self.threshold = threshold
-        self.top_k = top_k
-        self.selection_mode = selection_mode
-        self.context_embedding_model = context_embedding_model
-        self.embedding_model = embedding_model or OpenAIEmbeddingModel()
-        self.num_layers = num_layers
         self.start_layer = start_layer
 
     def log_config(self):
