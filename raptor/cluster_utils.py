@@ -69,7 +69,7 @@ def GMM_cluster(embeddings: np.ndarray, threshold: float, random_state: int = 0)
 def perform_clustering(
     embeddings: np.ndarray, dim: int, threshold: float, verbose: bool = False
 ) -> List[np.ndarray]:
-    reduced_embeddings_global = global_cluster_embeddings(embeddings, dim)
+    reduced_embeddings_global = global_cluster_embeddings(embeddings, min(dim, len(embeddings) -2))
     global_clusters, n_global_clusters = GMM_cluster(
         reduced_embeddings_global, threshold
     )
