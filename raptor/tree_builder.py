@@ -269,7 +269,8 @@ class TreeBuilder:
             Tree: The golden tree structure.
         """
         chunks = split_text(text, self.tokenizer, self.max_tokens)
-
+        chunks = [chunk for chunk in chunks if chunk.strip()]
+        
         logging.info("Creating Leaf Nodes")
 
         if use_multithreading:
