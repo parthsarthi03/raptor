@@ -37,9 +37,9 @@ def prep():
     randomly_connect_nodes(layer_1_nodes, leaf_nodes)
 
     return Tree(
-        all_nodes=nodes,
-        root_nodes=root_nodes,
-        leaf_nodes=leaf_nodes,
+        all_nodes={idx: node for idx, node in enumerate(nodes)},
+        root_nodes={idx : node for idx, node in enumerate(root_nodes)},
+        leaf_nodes={idx : node for idx, node in enumerate(leaf_nodes)},
         num_layers=2,
         layer_to_nodes={"0": root_nodes, "1": layer_1_nodes, "2": leaf_nodes},
     )
@@ -50,7 +50,7 @@ tree = prep()
 root_node = Node(
     "SIRE HERE",
     index=-1,
-    children=list(map(lambda x: x.index, tree.root_nodes)),
+    children=list(map(lambda x: x.index, tree.root_nodes.values())),
     embeddings=[],
 )
 visualize_tree_structure(root_node, tree)

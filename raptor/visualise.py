@@ -5,8 +5,16 @@
     Usage : visualize_tree_structure(start_node : Node, tree : Tree)
 """
 
-from igraph import Graph, EdgeSeq
-import plotly.graph_objects as go
+try:
+    import plotly.graph_objects as go
+except ImportError as e:
+    raise ImportError("`plotly` not installed. Please install using `pip install plotly`")
+
+try :
+    from igraph import Graph, EdgeSeq
+except ImportError as e:
+    raise ImportError("`igraph` not installed. Please install using `pip install igraph`.")
+
 from .tree_structures import Tree, Node
 
 
@@ -91,7 +99,7 @@ def find_node_in_tree(node_index: int, tree: Tree) -> Node:
     Finds a node in the tree by its index.
     """
     for key in tree.all_nodes:
-        node = tree.all_nodes[key.index]
+        node = tree.all_nodes[key]
         if node.index == node_index:
             return node
 
