@@ -9,3 +9,4 @@ torch
 transformers==4.38.1
 umap-learn==0.5.5
 urllib3==1.26.6 
+setuptools

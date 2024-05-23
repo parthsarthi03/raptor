@@ -91,6 +91,20 @@ RA = RetrievalAugmentation(tree=SAVE_PATH)
 answer = RA.answer_question(question=question)
 ```
 
+Visualise the tree using plotly
+```python 
+TREE = RA.tree
+ROOT_NODES = TREE.root_nodes.values()
+from raptor import tree_structures
+TOP_ROOT_NODE = tree_structures.Node(
+    "TOP_ROOT_NODE",
+    index=-1,
+    children=list(map(lambda x: x.index, ROOT_NODES)),
+    embeddings=[],
+)
+from raptor.visualise import visualize_tree_structure
+visualize_tree_structure(TOP_ROOT_NODE, TREE)
+```
 
 ### Extending RAPTOR with other Models
 
