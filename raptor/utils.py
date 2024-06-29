@@ -54,16 +54,25 @@ def split_text(
         # If the sentence is too long, split it into smaller parts
         if token_count > max_tokens:
             sub_sentences = re.split(r"[,;:]", sentence)
-            sub_token_counts = [len(tokenizer.encode(" " + sub_sentence)) for sub_sentence in sub_sentences]
+            
+            # there is no need to keep empty os only-spaced strings
+            # since spaces will be inserted in the beginning of the full string
+            # and in between the string in the sub_chuk list
+            filtered_sub_sentences = [sub.strip() for sub in sub_sentences if sub.strip() != ""]
+            sub_token_counts = [len(tokenizer.encode(" " + sub_sentence)) for sub_sentence in filtered_sub_sentences]
             
             sub_chunk = []
             sub_length = 0
             
-            for sub_sentence, sub_token_count in zip(sub_sentences, sub_token_counts):
+            for sub_sentence, sub_token_count in zip(filtered_sub_sentences, sub_token_counts):
                 if sub_length + sub_token_count > max_tokens:
-                    chunks.append(" ".join(sub_chunk))
-                    sub_chunk = sub_chunk[-overlap:] if overlap > 0 else []
-                    sub_length = sum(sub_token_counts[max(0, len(sub_chunk) - overlap):len(sub_chunk)])
+                    
+                    # if the phrase does not have sub_sentences, it would create an empty chunk
+                    # this big phrase would be added anyways in the next chunk append
+                    if sub_chunk:
+                        chunks.append(" ".join(sub_chunk))
+                        sub_chunk = sub_chunk[-overlap:] if overlap > 0 else []
+                        sub_length = sum(sub_token_counts[max(0, len(sub_chunk) - overlap):len(sub_chunk)])
                 
                 sub_chunk.append(sub_sentence)
                 sub_length += sub_token_count
