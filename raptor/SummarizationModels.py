@@ -72,3 +72,32 @@ class GPT3SummarizationModel(BaseSummarizationModel):
         except Exception as e:
             print(e)
             return e
+
+class OllamaSummarizationModel(BaseSummarizationModel):
+    def __init__(self, model="dolphin-phi"):
+        """
+        Initializes the Ollama model with the specified model version.
+        Args:
+            model (str, optional): The Ollama model version to use. Defaults to "dolphin-phi".
+        """
+        self.model = model
+
+    def summarize(self, context):
+        import ollama
+        try:
+            response = ollama.chat(model=self.model, messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {
+                        "role": "user",
+                        "content": f"Write a summary of the following, including as many key details as possible: {context}:",
+                    },
+                ])
+            return response['message']['content']
+        except Exception as e:
+            print(e)
+            return e
+
+if __name__ == "__main__":
+    context = "RAPTOR introduces a novel approach to retrieval-augmented language models by constructing a recursive tree structure from documents. This allows for more efficient and context-aware information retrieval across large texts, addressing common limitations in traditional language models."
+    ollama_model = OllamaSummarizationModel(model="llama3")
+    print(ollama_model.summarize(context))

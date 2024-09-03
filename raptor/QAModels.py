@@ -183,3 +183,38 @@ class UnifiedQAModel(BaseQAModel):
         input_string = question + " \\n " + context
         output = self.run_model(input_string)
         return output[0]
+
+class OllamaQAModel(BaseQAModel):
+    def __init__(self, model="dolphin-phi"):
+        """
+        Initializes the Ollama model with the specified model version.
+        Args:
+            model (str, optional): The Ollama model version to use. Defaults to "dolphin-phi".
+        """
+        self.model = model
+
+    def answer_question(self, context, question):
+        """
+        Generates an answer to the given question using the Ollama model.
+        Args:
+            context (str): The context or background information for the question.
+            question (str): The question to generate an answer for.
+        Returns:
+            str: The generated answer.
+        """
+        import ollama
+        response = ollama.chat(model=self.model, messages=[
+                {"role": "system", "content": "You are Question Answering Portal"},
+                {
+                    "role": "user",
+                    "content": f"Given Context: {context} Give the best full answer amongst the option to question {question}",
+                },
+            ])
+        return response['message']['content']
+
+if __name__ == '__main__':
+    ollama_model = OllamaQAModel(model="llama3")
+    context = "1+1*1=3"
+    question = "Is the formula correct?"
+    answer = ollama_model.answer_question(context, question)
+    print(answer)
