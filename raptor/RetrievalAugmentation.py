@@ -200,7 +200,17 @@ class RetrievalAugmentation:
         logging.info(
             f"Successfully initialized RetrievalAugmentation with Config {config.log_config()}"
         )
+    def add_to_existing(self, docs):
+        """
+        Adds documents to the existing tree and creates a TreeRetriever instance.
 
+        Args:
+            docs (str): The input text to add to the tree.
+        """
+        new_tree = self.tree_builder.build_from_text(text=docs)
+        self.tree.hang_tree(new_tree)
+        self.retriever = TreeRetriever(self.tree_retriever_config, self.tree)
+        
     def add_documents(self, docs):
         """
         Adds documents to the tree and creates a TreeRetriever instance.
@@ -213,7 +223,7 @@ class RetrievalAugmentation:
                 "Warning: Overwriting existing tree. Did you mean to call 'add_to_existing' instead? (y/n): "
             )
             if user_input.lower() == "y":
-                # self.add_to_existing(docs)
+                self.add_to_existing(docs)
                 return
 
         self.tree = self.tree_builder.build_from_text(text=docs)
