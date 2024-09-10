@@ -44,7 +44,7 @@ class GPT3QAModel(BaseQAModel):
         """
         try:
             response = self.client.completions.create(
-                prompt=f"using the folloing information {context}. Answer the following question in less than 5-7 words, if possible: {question}",
+                prompt=f"using the following information {context}. Answer the following question in less than 5-7 words, if possible: {question}",
                 temperature=0,
                 max_tokens=max_tokens,
                 top_p=1,
